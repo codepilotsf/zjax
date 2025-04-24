@@ -42,10 +42,11 @@
   </head>
 
   <body>
-    <form action="./submit" method="post" z-swap="@submit.prevent form">
+    <form action="./submit" method="get" z-swap="@submit.prevent form">
       <input type="text" name="name" z-action="@input $('h1').innerText = $().value || ''" />
       <input id="phone" type="text" name="phone" />
       <button type="submit">Go</button>
+      <input type="text" name="realtime" z-swap="@input.debounce.500ms GET /submit form" />
     </form>
 
     <button z-swap="@click /test-404 img" style="margin: 4rem">Do It</button>

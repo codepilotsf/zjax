@@ -1,3 +1,7 @@
+## 3.0.4 - 2025-04-24
+- Fixed FormData submission – tested and working reliably now
+- Added support for POST and other methods on standalone form elements (whether nested inside a form or not)
+
 ## 3.0.3 - 2025-04-24
 - Reworked FormData ro improve submission reliability and also to submit raw FormData object instead of converting to a string first
 

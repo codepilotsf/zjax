@@ -140,8 +140,10 @@ function getSwaps(swapString) {
 function getSwapFunction(trigger, swapObject) {
   return async (event) => {
     // Add formData to swapObject now at swap time (so form values are populated)
-    const formData = (trigger.node.tagName === "FORM" && new FormData(trigger.node)) || null;
-    swapObject.formData = formData ? JSON.stringify(Object.fromEntries(formData.entries())) : null;
+    const formData = getFormData(trigger.node, event);
+    if (formData) {
+      swapObject.formData = JSON.stringify(Object.fromEntries(formData.entries()));
+    }
     debug("z-swap triggered for", swapObject);
 
     try {
@@ -149,7 +151,7 @@ function getSwapFunction(trigger, swapObject) {
       const [responseDOM, response] = await getResponseDOM(
         swapObject.method,
         swapObject.endpoint,
-        swapObject.formData,
+        formData,
       );
 
       if (!response.ok) {
@@ -193,13 +195,28 @@ function getSwapFunction(trigger, swapObject) {
   };
 }
 
+function getFormData(triggerEl, event) {
+  const formEl = triggerEl.form || triggerEl.closest("form");
+  if (!formEl && !triggerEl.name) {
+    return null;
+  }
+  let formData = new FormData(formEl ?? undefined, event.submitter);
+  if (!formEl && triggerEl.name) formData.append(triggerEl.name, triggerEl.value);
+  return formData;
+}
+
 async function getResponseDOM(method, endpoint, formData) {
-  const response = await fetch(endpoint, {
+  let response;
+
+  // Append formData to endpoint as a queryString for GET or DELETE requests
+  if (formData && /GET|DELETE/i.test(method)) {
+    const urlEncodedFormData = new URLSearchParams(formData).toString();
+    endpoint += (/\?/.test(endpoint) ? "&" : "?") + urlEncodedFormData;
+    formData = null;
+  }
+  response = await fetch(endpoint, {
     method: method,
-    body: formData || null,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
+    body: formData,
   });
   let responseDOM = null;
   if (response.ok) {

@@ -57,13 +57,27 @@ export async function processDelay(t) {
   return true;
 }
 
-export function debounce(func, delay) {
+export function debounce(func, delay = 300) {
   let timeoutId;
+
   return function (...args) {
     const context = this;
-    clearTimeout(timeoutId);
+
+    if (timeoutId) clearTimeout(timeoutId);
+
     timeoutId = setTimeout(() => {
       func.apply(context, args);
     }, delay);
   };
 }
+
+// export function debounce(func, delay) {
+//   let timeoutId;
+//   return function (...args) {
+//     const context = this;
+//     clearTimeout(timeoutId);
+//     timeoutId = setTimeout(() => {
+//       func.apply(context, args);
+//     }, delay);
+//   };
+// }
