@@ -9,14 +9,14 @@ async function startServer() {
 
   // Routes
   app.get("/submit", upload.none(), (req, res) => {
-    console.log("req.query", req.query);
+    console.log("req.query.name", req.query.name);
     res.type("html");
     res.send("<form>WORKED WITH GET</form>");
   });
 
   app.post("/submit", upload.none(), (req, res) => {
-    console.log("req.body", req.body);
-    res.type("html");
+    console.log("req.body.name", req.body.name);
+    foores.type("html");
     res.send("<form>WORKED WITH POST</form>");
   });
 

@@ -11,7 +11,7 @@ Just include the Zjax CDN link in your document head.
 
 ```html
 <head>
-  <script src="https://unpkg.com/zjax@2.0.1"></script>
+  <script src="https://unpkg.com/zjax@3.0.4"></script>
   ...
 </head>
 ```

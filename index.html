@@ -2,20 +2,21 @@
 <html>
   <head>
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css" />
-    <script type="module" src="/src/main.js"></script>
+    <!-- <script type="module" src="/src/main.js"></script> -->
     <!-- <script src="/dist/zjax.min.js"></script> -->
-    <!-- <script src="//unpkg.com/zjax@3.0.2"></script> -->
+    <script src="//unpkg.com/zjax@3.0.4"></script>
     <script src="/src/ui.js"></script>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         zjax.errors = {
           404($) {
-            console.log("$.response", $.response);
-            alert("not found");
+            alert($.response.statusText);
           },
           500($) {
-            alert("ERRRRRROR!");
+            console.log("$.response", $.response);
+
+            alert($.response.statusText);
           },
           // catchAll($) {
           //   $.redirect("/other");
@@ -42,7 +43,7 @@
   </head>
 
   <body>
-    <form action="./submit" method="get" z-swap="@submit.prevent form">
+    <form action="./submit" method="post" z-swap="@submit.prevent form">
       <input type="text" name="name" z-action="@input $('h1').innerText = $().value || ''" />
       <input id="phone" type="text" name="phone" />
       <button type="submit">Go</button>
@@ -52,7 +53,7 @@
     <button z-swap="@click /test-404 img" style="margin: 4rem">Do It</button>
 
     <h1 z-action="@click ui.alert">This is Zjax</h1>
-    <h1 z-swap="@click /other.html h1">Index</h1>
+    <h1 z-swap="@click /other.html div>h1">Index</h1>
     <a href="https://httpbin.org/html" z-swap="@click.delay.2s p">Fetch Moby Dick</a>
     <p id="bkey" z-action="@keydown.window.meta.b alert">This will be replaced by Zjax.</p>
 
