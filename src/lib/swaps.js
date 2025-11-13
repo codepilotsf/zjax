@@ -221,6 +221,10 @@ async function getResponseDOM(method, endpoint, formData) {
   let responseDOM = null;
   if (response.ok) {
     responseDOM = new DOMParser().parseFromString(await response.text(), "text/html");
+    if (!responseDOM.head.children.length && responseDOM.body.children.length === 1) {
+      // The response is a partial HTML snippet
+      responseDOM = responseDOM.body.children[0];
+    }
     debug(`z-swap response from ${endpoint} received and parsed`);
   }
   return [responseDOM, response];

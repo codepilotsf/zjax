@@ -6,9 +6,8 @@ export function getGlobal() {
     transitions: true,
     actions: {},
     errors: {},
-    parse: function (documentOrNode) {
+    parse: function (documentOrNode = document) {
       // Parse the DOM for zjax elements
-      documentOrNode = documentOrNode || document;
       parseSwaps(documentOrNode);
       parseActions(documentOrNode);
     },
