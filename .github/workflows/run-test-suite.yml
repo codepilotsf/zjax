@@ -1,0 +1,46 @@
+name: npm test
+run-name: "npm test on PR #${{ github.event.pull_request.number }}"
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  run-npm-test:
+    name: All tests must pass
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install chromium --with-deps
+      - run: npm test
+      - uses: actions/upload-artifact@v4
+        with:
+          path: monocart-report/coverage/lcov.info
+          retention-days: 1
+
+  check-patch-coverage:
+    name: PR's changes must be covered by the tests
+    needs: run-npm-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+      - uses: actions/download-artifact@v4
+        with:
+          path: monocart-report/coverage/
+          merge-multiple: true
+      - name: PR's changes must be covered by the tests
+        run: git diff -U0 origin/main...HEAD -- "src/" | npx @atakama/cover-diff 2>&1 | node script/cover-diff.mjs

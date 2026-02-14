@@ -5,7 +5,7 @@ export default defineConfig({
     ['list'],
     ['monocart-reporter', {
       coverage: {
-        reports: ['v8', 'text', 'text-summary']
+        reports: ['v8', 'text', 'text-summary', 'lcovonly']
       }
     }]
   ]
