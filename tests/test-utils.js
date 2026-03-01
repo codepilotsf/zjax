@@ -1,6 +1,7 @@
-import { writeFile } from 'fs/promises';
-import path from 'path';
+import { writeFileSync } from 'node:fs';
+import path from 'node:path';
 
+import chalk from 'chalk';
 import { addCoverageReport } from 'monocart-reporter';
 import { expect } from '@playwright/test';
 import slugify from '@sindresorhus/slugify';
@@ -23,7 +24,7 @@ export function withHtml(htmlBody, testBody) {
         </body>
       </html>
     `;
-    await writeFile(htmlFile, htmlContent, 'utf-8');
+    writeFileSync(htmlFile, htmlContent, 'utf-8');
     await runTest(page, htmlFile, testBody, testInfo);
   };
 }
@@ -34,4 +35,16 @@ async function runTest(page, htmlFile, testBody, testInfo) {
   await testBody(page, (selector) => expect(page.locator(selector)));
   const coverageData = await page.coverage.stopJSCoverage();
   await addCoverageReport(coverageData, testInfo);
+}
+
+export default class UsageHelper {
+  onEnd() {
+    console.log('Coverage Report is under the top-right burger menu');
+  }
+  
+  onTestEnd(test, result) {
+    if (result.status !== 'passed') {
+      console.error('  ⚠️  ', chalk.bgRed(`tests/${slugify(test.title)}.html`));
+    }
+  }
 }

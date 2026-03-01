@@ -7,6 +7,7 @@ export default defineConfig({
       coverage: {
         reports: ['v8', 'text', 'text-summary', 'lcovonly']
       }
-    }]
+    }],
+    ['./tests/test-utils.js'],
   ]
 });
