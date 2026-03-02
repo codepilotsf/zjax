@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "size": "gzip -c dist/zjax.min.js | wc -c | awk '{print \"Gzipped and minified size: \" $1 / 1024 \" KB\"}'",
     "semver": "node script/semver.cjs",
+    "pretest": "node script/pretest.mjs",
     "test": "VITE_COVERAGE=true vite build && playwright test"
   },
   "files": [
