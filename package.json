@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "size": "gzip -c dist/zjax.min.js | wc -c | awk '{print \"Gzipped and minified size: \" $1 / 1024 \" KB\"}'",
     "semver": "node script/semver.cjs",
-    "test": "playwright test"
+    "pretest": "node script/pretest.mjs",
+    "test": "vite build --mode test && playwright test"
   },
   "files": [
     "dist/zjax.min.js",
@@ -27,9 +28,18 @@
   "license": "MIT",
   "devDependencies": {
     "@playwright/test": "^1.58.1",
+    "@sindresorhus/slugify": "^3.0.0",
+    "chalk": "^5.6.2",
     "express": "^5.1.0",
+    "monocart-reporter": "^2.10.0",
     "multer": "^1.4.5-lts.2",
     "nodemon": "^3.1.10",
     "vite": "^6.2.0"
+  },
+  "@atakama/cover-diff": {
+    "lines": 100,
+    "branches": 100,
+    "functions": 100,
+    "lcovFile": "monocart-report/coverage/lcov.info"
   }
 }
