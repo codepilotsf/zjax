@@ -21,6 +21,9 @@ jobs:
       - run: npm ci
       - run: npx playwright install chromium --with-deps
       - run: npm test
+      - name: Check for test-generated .html changes
+        run: |
+          [ -z "$(git status -s)" ] || (git status; echo -e "\e[31mPlease commit these changes"; false)
       - uses: actions/upload-artifact@v4
         with:
           path: monocart-report/coverage/lcov.info
