@@ -1,12 +1,15 @@
 // vite.config.js
 import { defineConfig } from "vite";
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
+  server: {
+    hmr: process.env.VITE_HMR !== 'false',
+  },
   build: {
     lib: {
       entry: "src/main.js", // Your main library entry file
       name: "zjax", // The global variable name (e.g., window.zjax)
-      fileName: () => mode === 'test' ? 'zjax.debug.js' : 'zjax.min.js', // Output file name
+      fileName: () => 'zjax.min.js', // Output file name
       formats: ["iife"], // Output format: IIFE
     },
     rollupOptions: {
@@ -17,9 +20,8 @@ export default defineConfig(({ mode }) => ({
         // },
       },
     },
-    minify: mode !== 'test',
-    sourcemap: mode === 'test' && 'inline',
-    emptyOutDir: mode !== 'test',
+    minify: true,
+    emptyOutDir: true,
   },
   plugins: [
     {
@@ -65,4 +67,4 @@ export default defineConfig(({ mode }) => ({
       },
     },
   ],
-}));
+});

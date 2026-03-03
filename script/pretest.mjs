@@ -1,15 +1,28 @@
 
 import { exec } from 'node:child_process';
+import { readdirSync } from 'node:fs';
+import { unlink } from 'node:fs/promises';
+import path from 'node:path';
 import chalk from 'chalk';
-import slugify from '@sindresorhus/slugify';
+import { slugify, outputDir } from '../test/base.js';
 
 exec('npx playwright test --list --reporter=json', (error, stdout, stderr) => {
   if (stderr) throw stderr;
 
-  const tests = JSON.parse(stdout).suites.flatMap(suite => suite.specs);
+  const testList = JSON.parse(stdout);
+  if (testList.errors.length) {
+    console.error(testList.errors);
+    process.exit(1);
+  }
+
+  const slugs = ensureSlugsUnique(testList.suites.flatMap(suite => suite.specs));
+  deleteUnusedHtmls(new Set(slugs.map(slug => slug + '.html')));
+});
+
+function ensureSlugsUnique(tests) {
   const bySlug = {};
   for (const test of tests) {
-    const slug = slugify(test.title)
+    const slug = slugify(test.title);
     const prev = bySlug[slug];
     if (prev) {
       console.error(chalk.red(`Error: duplicate test slug "${slug}":\n`));
@@ -19,4 +32,14 @@ exec('npx playwright test --list --reporter=json', (error, stdout, stderr) => {
     }
     bySlug[slug] = test;
   }
-});
+  return Object.keys(bySlug);
+}
+
+function deleteUnusedHtmls(usedHtmls) {
+  for (const filename of readdirSync(outputDir)) {
+    if (!usedHtmls.has(filename)) {
+      console.log(chalk.yellow(`[Unused] Deleting test/out/${filename}`));
+      unlink(path.join(outputDir, filename));
+    }
+  }
+}
