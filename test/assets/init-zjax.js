@@ -13,3 +13,13 @@ if (location.protocol === 'file:') {
     </main>
   `);
 }
+else {
+  window.zjax = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = '/src/main.js';
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  }).then(() => zjax.parse());
+}

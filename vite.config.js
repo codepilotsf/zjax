@@ -66,5 +66,24 @@ export default defineConfig({
         });
       },
     },
+    {
+      name: 'echo',
+      configureServer(server) {
+        server.middlewares.use(async (req, res, next) => {
+          if (req.url.startsWith('/echo')) {
+            let reqBody = '';
+            for await (const chunk of req) { reqBody += chunk; }
+
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'text/html');
+            res.end(`
+              <pre>${req.method} ${req.url} ${reqBody}</pre>
+            `);
+            return;
+          }
+          next();
+        });
+      },
+    },
   ],
 });
