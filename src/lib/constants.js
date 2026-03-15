@@ -29,7 +29,7 @@ export const mouseEvents = [
   "mouseout",
   "mouseenter",
   "mouseleave",
-  "context",
+  "contextmenu",
 ];
 
 export const mouseTriggerModifiers = ["ctrl", "shift", "alt", "meta"];
