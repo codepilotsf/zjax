@@ -245,7 +245,7 @@ function getResponseAndTargetNodes(responseDOM, swap) {
   }
 
   const responseNode =
-    swap.response === "*" ? responseDOM : responseDOM.querySelector(swap.response);
+    swap.response === "*" ? responseDOM : querySelectorIncludingParent(responseDOM, swap.response);
 
   // Make sure there's a valid target node for all swap types except "none"
   if (!targetNode && swap.swapType !== "none") {
@@ -385,7 +385,7 @@ function swapOneNode(targetNode, responseNode, swapType, responseType) {
 }
 
 function querySelectorIncludingParent(node, selector) {
-  if (node.matches(selector)) {
+  if (node.matches && node.matches(selector)) {
     return node;
   }
 
