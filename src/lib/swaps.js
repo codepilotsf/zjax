@@ -221,10 +221,6 @@ async function getResponseDOM(method, endpoint, formData) {
   let responseDOM = null;
   if (response.ok) {
     responseDOM = new DOMParser().parseFromString(await response.text(), "text/html");
-    if (!responseDOM.head.children.length && responseDOM.body.children.length === 1) {
-      // The response is a partial HTML snippet
-      responseDOM = responseDOM.body.children[0];
-    }
     debug(`z-swap response from ${endpoint} received and parsed`);
   }
   return [responseDOM, response];
@@ -245,7 +241,9 @@ function getResponseAndTargetNodes(responseDOM, swap) {
   }
 
   const responseNode =
-    swap.response === "*" ? responseDOM : responseDOM.querySelector(swap.response);
+    swap.response === "*" ?
+      responseDOM.body.children.length === 1 ? responseDOM.body.children[0] : responseDOM.body :
+      responseDOM.querySelector(swap.response);
 
   // Make sure there's a valid target node for all swap types except "none"
   if (!targetNode && swap.swapType !== "none") {
