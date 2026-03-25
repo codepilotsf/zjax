@@ -260,7 +260,7 @@ function getResponseAndTargetNodes(responseDOM, swap) {
   return [responseNode, targetNode];
 }
 
-function getMutatedResponseNodeAndAttributesToUpdateMap(targetNode, responseNode) {
+function getMutatedResponseNodeAndAttributesToUpdateMap(targetNode, responseNodeOrItsChildren) {
   // Return the mutated responseNode and an attributesToUpdate object for later use.
   // The mutated responseNode retains most attributes from the targetNode for any
   // nodes with an id matching both target and response.
@@ -269,6 +269,10 @@ function getMutatedResponseNodeAndAttributesToUpdateMap(targetNode, responseNode
   // First, check the parent node for an id present in both the target and
   // response.
   const targetNodesWithIds = querySelectorAllIncludingParent(targetNode, "[id]");
+  const responseNode =
+    responseNodeOrItsChildren instanceof NodeList ?
+      responseNodeOrItsChildren[0].parentNode :
+      responseNodeOrItsChildren;
 
   for (const targetNodeWithId of targetNodesWithIds) {
     const responseNodeWithMatchingId = querySelectorIncludingParent(
@@ -284,7 +288,7 @@ function getMutatedResponseNodeAndAttributesToUpdateMap(targetNode, responseNode
     }
   }
 
-  return [responseNode, attributesToUpdateMap];
+  return [responseNodeOrItsChildren, attributesToUpdateMap];
 }
 
 function swapOneNode(targetNode, responseNode, swapType, responseType) {
