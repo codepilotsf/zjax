@@ -26,7 +26,7 @@ jobs:
           [ -z "$(git status -s)" ] || (git status; echo -e "\e[31mPlease commit these changes"; false)
       - uses: actions/upload-artifact@v4
         with:
-          path: monocart-report/coverage/lcov.info
+          path: test/result/report/coverage/lcov.info
           retention-days: 1
 
   check-patch-coverage:
@@ -43,7 +43,7 @@ jobs:
           cache: 'npm'
       - uses: actions/download-artifact@v4
         with:
-          path: monocart-report/coverage/
+          path: test/result/report/coverage/
           merge-multiple: true
       - name: PR's changes must be covered by the tests
         run: git diff -U0 origin/main...HEAD -- "src/" | npx @atakama/cover-diff 2>&1 | node script/cover-diff.mjs

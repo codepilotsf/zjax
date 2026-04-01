@@ -2,12 +2,5 @@
 Readme.wip.md
 notes
 node_modules
-
-# Playwright
-/test-results/
-/playwright-report/
-/monocart-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
-/dist/zjax.debug.js
+/test/result
+/monocart-report

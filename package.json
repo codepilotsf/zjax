@@ -11,7 +11,7 @@
     "size": "gzip -c dist/zjax.min.js | wc -c | awk '{print \"Gzipped and minified size: \" $1 / 1024 \" KB\"}'",
     "semver": "node script/semver.cjs",
     "pretest": "node script/pretest.mjs",
-    "test": "vite build --mode test && playwright test"
+    "test": "COVERAGE=true playwright test --fully-parallel"
   },
   "files": [
     "dist/zjax.min.js",
@@ -40,6 +40,6 @@
     "lines": 100,
     "branches": 100,
     "functions": 100,
-    "lcovFile": "monocart-report/coverage/lcov.info"
+    "lcovFile": "test/result/report/coverage/lcov.info"
   }
 }
