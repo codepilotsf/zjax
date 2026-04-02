@@ -100,9 +100,9 @@ for (const [event, expectedIncrement] of [
 }
 
 /*
-  ------------------------
-  Test debounce/delay/once
-  ------------------------
+  ------------------------------------------
+  Test action timing (debounce, delay, once)
+  ------------------------------------------
 */
 test(`z-action timing`, withHtml(
   `
@@ -117,6 +117,9 @@ test(`z-action timing`, withHtml(
         }
       }
     </script>
+    <style>
+      button { width: 250px; }
+    </style>
     ${['@click', '@click.once', '@click.delay.999ms', '@click.debounce.1s'].map(event => 
       `<button z-action="${event} counter">${event}</button>`
     ).join('<br>')}
@@ -145,8 +148,7 @@ test(`z-action timing`, withHtml(
 
     await debounced.dblclick();
     await expect(debounced).toHaveText(/debounce/);
-    /* TODO: fix debounce */
-    // await expect(debounced).toHaveText('1');
+    await expect(debounced).toHaveText('1');
 
     await untimed.dblclick();
     await expect(untimed).toHaveText('4');
@@ -159,7 +161,7 @@ test(`z-action timing`, withHtml(
     await expect(delayed).toHaveText('4');
 
     await debounced.dblclick();
-    // await expect(debounced).toHaveText('1');
-    // await expect(debounced).toHaveText('2');
+    await expect(debounced).toHaveText('1');
+    await expect(debounced).toHaveText('2');
   }
 ));
