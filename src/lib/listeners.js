@@ -14,6 +14,9 @@ export function addZjaxListener(trigger, handlerFunction, withDollar = false) {
   const handlerId = `handler${counter}`;
   // If the trigger is event is mount, let's change it internally to mount:<handlerId>
   const mountOrTriggerEvent = trigger.event === "mount" ? `mount:${handlerId}` : trigger.event;
+  if (trigger.modifiers.debounce) {
+    handlerFunction = modifiers.debounce(handlerFunction, trigger.modifiers.debounce);
+  }
   handlers[handlerId] = {
     target: trigger.target,
     event: mountOrTriggerEvent,
@@ -30,13 +33,6 @@ export function addZjaxListener(trigger, handlerFunction, withDollar = false) {
       // swaps and actions with one important exeption: Swaps do not need the $ object
       // but actions do. So we need to pass the $ object to the handler function only for actions.
       const eventOrDollar = withDollar ? getDollar(trigger.node, event) : event;
-
-      // Execute the function with or without debounce
-      if (modifiers.debounce) {
-        const debouncedHandler = modifiers.debounce(handlerFunction, trigger.modifiers.debounce);
-        debouncedHandler(eventOrDollar);
-        return;
-      }
       await handlerFunction(eventOrDollar);
     },
   };
