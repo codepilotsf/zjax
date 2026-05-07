@@ -1,3 +1,6 @@
+## 3.0.5 - 2026-05-07
+- Latest pull requests merged
+
 ## 3.0.4 - 2025-04-24
 - Fixed FormData submission – tested and working reliably now
 - Added support for POST and other methods on standalone form elements (whether nested inside a form or not)

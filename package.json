@@ -1,6 +1,6 @@
 {
   "name": "zjax",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "type": "module",
   "description": "ZJAX is a lightweight yet powerful JavaScript library that brings modern SPA-like interactivity to your web pages with minimal effort.",
   "main": "dist/zjax.min.js",

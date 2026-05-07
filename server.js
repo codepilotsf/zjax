@@ -16,7 +16,7 @@ async function startServer() {
 
   app.post("/submit", upload.none(), (req, res) => {
     console.log("req.body.name", req.body.name);
-    foores.type("html");
+    res.type("html");
     res.send("<form>WORKED WITH POST</form>");
   });
 
