@@ -13,15 +13,19 @@ let sharedObserver = null;
 export function addZjaxListener(trigger, handlerFunction, withDollar = false) {
   counter++;
   const handlerId = `handler${counter}`;
-  // If the trigger is event is mount, let's change it internally to mount:<handlerId>
-  const mountOrTriggerEvent = trigger.event === "mount" ? `mount:${handlerId}` : trigger.event;
+  // Mount and unmount are namespaced per-handler internally (e.g. "mount:handler3")
+  // so dispatching one handler's synthetic event doesn't also fire every other
+  // @mount/@unmount handler sharing the same target (e.g. multiple @mount.document).
+  const isMountOrUnmount = trigger.event === "mount" || trigger.event === "unmount";
+  const eventName = isMountOrUnmount ? `${trigger.event}:${handlerId}` : trigger.event;
   if (trigger.modifiers.debounce) {
     handlerFunction = modifiers.debounce(handlerFunction, trigger.modifiers.debounce);
   }
   handlers[handlerId] = {
     node: trigger.node,
     target: trigger.target,
-    event: mountOrTriggerEvent,
+    event: eventName,
+    isUnmount: trigger.event === "unmount",
     handlerFunction: async function (event) {
       // Process modifiers
       if (!modifiers.processKeyboard(trigger, event)) return;
@@ -38,15 +42,15 @@ export function addZjaxListener(trigger, handlerFunction, withDollar = false) {
       await handlerFunction(eventOrDollar);
     },
   };
-  trigger.target.addEventListener(mountOrTriggerEvent, handlers[handlerId].handlerFunction);
+  trigger.target.addEventListener(eventName, handlers[handlerId].handlerFunction);
 
   // Make sure the shared mutation observer (which removes listeners for any
-  // handler whose node leaves the DOM) is running.
+  // handler whose node leaves the DOM, and fires @unmount handlers) is running.
   ensureSharedObserver();
 
   // One last thing, if the trigger is a mount event, let's fire that event now.
   if (trigger.event === "mount") {
-    trigger.target.dispatchEvent(new Event(mountOrTriggerEvent));
+    trigger.target.dispatchEvent(new Event(eventName));
   }
 }
 
@@ -54,6 +58,11 @@ export function removeAllZjaxListeners() {
   debug("Removing all zjax event listeners");
   for (const handlerId in handlers) {
     const h = handlers[handlerId];
+    // A full reset (e.g. on turbo:load) is still a node leaving the DOM as far
+    // as @unmount is concerned, so fire it here too.
+    if (h.isUnmount) {
+      h.target.dispatchEvent(new Event(h.event));
+    }
     h.target.removeEventListener(h.event, h.handlerFunction);
     delete handlers[handlerId];
   }
@@ -72,7 +81,18 @@ function ensureSharedObserver() {
         for (const handlerId in handlers) {
           const handler = handlers[handlerId];
           if (removedNode === handler.node || removedNode.contains(handler.node)) {
-            // Remove event listener when the node is removed from DOM
+            // MutationObserver callbacks run as a microtask after the mutating
+            // code finishes, so a synchronous move (removeChild + appendChild
+            // elsewhere, as jQuery/Sortable do for drag-and-drop) has already
+            // completed by the time we get here. If the node is still connected,
+            // it was relocated, not removed -- leave its listener alone.
+            if (handler.node.isConnected) continue;
+
+            // Fire @unmount handlers while the node's listener is still attached,
+            // then remove the event listener since the node has left the DOM
+            if (handler.isUnmount) {
+              handler.target.dispatchEvent(new Event(handler.event));
+            }
             handler.target.removeEventListener(handler.event, handler.handlerFunction);
             delete handlers[handlerId]; // Remove the handler from the list
             debug(`Removing event listener for ${utils.prettyNodeName(handler.node)} (no longer in DOM)`);

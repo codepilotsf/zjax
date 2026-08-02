@@ -1,2 +1,4 @@
-- Add @unmount trigger
-- Replace the per-listener MutationObserver in listeners.js (one full-document subtree observer created per z-action/z-swap trigger) with a single shared observer keyed by a node→handler registry
+- [x] Add @unmount trigger
+- [x] Replace the per-listener MutationObserver in listeners.js (one full-document subtree observer created per z-action/z-swap trigger) with a single shared observer keyed by a node→handler registry
+- [x] Add test for unmount
+- [x] Make sure that mount/unmount don't fire when moved to a different area of the DOM (as in with drag and drop like a kanban board)

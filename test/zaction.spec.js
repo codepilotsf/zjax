@@ -100,6 +100,51 @@ for (const [event, expectedIncrement] of [
 }
 
 /*
+  -----------------------
+  Test @unmount trigger
+  -----------------------
+*/
+test('z-action @unmount', withHtml(
+  `
+    <div id="marker">not fired</div>
+    <p id="target" z-action="@unmount $('#marker').textContent = 'fired'">Remove me</p>
+    <button z-action="@click $('#target').remove()">Remove</button>
+  `,
+  async (page) => {
+    const marker = page.locator('#marker');
+    const target = page.locator('#target');
+
+    await expect(marker).toHaveText('not fired');
+    await expect(target).toBeVisible();
+
+    await page.getByRole('button', { name: 'Remove' }).click();
+
+    await expect(target).toHaveCount(0);
+    await expect(marker).toHaveText('fired');
+  }
+));
+
+test('z-action @unmount does not fire when a node is moved rather than removed', withHtml(
+  `
+    <div id="marker">not fired</div>
+    <div id="column-a"><p id="card" z-action="@unmount $('#marker').textContent = 'fired'">Card</p></div>
+    <div id="column-b"></div>
+    <button z-action="@click $('#column-b').appendChild($('#card'))">Move to column B</button>
+  `,
+  async (page) => {
+    const marker = page.locator('#marker');
+
+    await expect(marker).toHaveText('not fired');
+    await expect(page.locator('#column-a #card')).toHaveCount(1);
+
+    await page.getByRole('button', { name: 'Move to column B' }).click();
+
+    await expect(page.locator('#column-b #card')).toHaveCount(1);
+    await expect(marker).toHaveText('not fired');
+  }
+));
+
+/*
   ------------------------------------------
   Test action timing (debounce, delay, once)
   ------------------------------------------

@@ -8,9 +8,10 @@
         </head>
         <body>
           <main>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@latest/dist/turbo.es2017-esm.min.js"></script>
-    <a href="../assets/mobydick.html">Fetch Moby Dick</a>
-    <p z-action="@unmount console.log('unmounted')">this leaves the DOM on turbo navigation</p>
+    <div id="marker">not fired</div>
+    <div id="column-a"><p id="card" z-action="@unmount $('#marker').textContent = 'fired'">Card</p></div>
+    <div id="column-b"></div>
+    <button z-action="@click $('#column-b').appendChild($('#card'))">Move to column B</button>
   </main>
         </body>
       </html>
