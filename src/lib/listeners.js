@@ -8,6 +8,7 @@ import { getDollar, modifiers, utils, debug } from "../lib";
 
 let counter = 0;
 const handlers = {};
+let sharedObserver = null;
 
 export function addZjaxListener(trigger, handlerFunction, withDollar = false) {
   counter++;
@@ -18,6 +19,7 @@ export function addZjaxListener(trigger, handlerFunction, withDollar = false) {
     handlerFunction = modifiers.debounce(handlerFunction, trigger.modifiers.debounce);
   }
   handlers[handlerId] = {
+    node: trigger.node,
     target: trigger.target,
     event: mountOrTriggerEvent,
     handlerFunction: async function (event) {
@@ -38,8 +40,9 @@ export function addZjaxListener(trigger, handlerFunction, withDollar = false) {
   };
   trigger.target.addEventListener(mountOrTriggerEvent, handlers[handlerId].handlerFunction);
 
-  // Add a mutation observer to remove the event listener when the node is removed
-  attachMutationObserver(trigger, handlerId);
+  // Make sure the shared mutation observer (which removes listeners for any
+  // handler whose node leaves the DOM) is running.
+  ensureSharedObserver();
 
   // One last thing, if the trigger is a mount event, let's fire that event now.
   if (trigger.event === "mount") {
@@ -56,28 +59,29 @@ export function removeAllZjaxListeners() {
   }
 }
 
-function attachMutationObserver(trigger, handlerId) {
-  // Create a MutationObserver to watch for node removal
-  // When the node is removed, remove the event listener
-  const observer = new MutationObserver((mutationsList) => {
+function ensureSharedObserver() {
+  // Only ever create one observer, no matter how many handlers get added.
+  if (sharedObserver) return;
+
+  // Watch for node removal across every z-swap/z-action handler at once: one
+  // callback per mutation batch, checked against every tracked handler, instead
+  // of one dedicated observer (and callback) per handler.
+  sharedObserver = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
       for (const removedNode of mutation.removedNodes) {
-        if (removedNode === trigger.node || removedNode.contains(trigger.node)) {
-          // Remove event listener when the node is removed from DOM
-          if (handlers[handlerId])
-            trigger.target.removeEventListener(trigger.event, handlers[handlerId].handlerFunction);
-          delete handlers[handlerId]; // Remove the handler from the list
-          zjax.debug &&
-            debug(
-              `Removing event listener for ${utils.prettyNodeName(trigger.node)} (no longer in DOM)`,
-            );
-          observer.disconnect(); // Stop observing
-          return;
+        for (const handlerId in handlers) {
+          const handler = handlers[handlerId];
+          if (removedNode === handler.node || removedNode.contains(handler.node)) {
+            // Remove event listener when the node is removed from DOM
+            handler.target.removeEventListener(handler.event, handler.handlerFunction);
+            delete handlers[handlerId]; // Remove the handler from the list
+            debug(`Removing event listener for ${utils.prettyNodeName(handler.node)} (no longer in DOM)`);
+          }
         }
       }
     }
   });
 
-  // Observe the parent of the target node for childList changes
-  observer.observe(document, { childList: true, subtree: true });
+  // Observe the whole document for childList changes
+  sharedObserver.observe(document, { childList: true, subtree: true });
 }

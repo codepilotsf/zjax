@@ -1,0 +1,2 @@
+- Add @unmount trigger
+- Replace the per-listener MutationObserver in listeners.js (one full-document subtree observer created per z-action/z-swap trigger) with a single shared observer keyed by a node→handler registry
