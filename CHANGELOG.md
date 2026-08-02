@@ -1,3 +1,10 @@
+
+## 3.1.0 - 2026-08-01
+- Add @unmount trigger
+- Replace the per-listener MutationObserver in listeners.js (one full-document subtree observer created per z-action/z-swap trigger) with a single shared observer keyed by a node→handler registry
+- Add test for unmount
+- Make sure that mount/unmount don't fire when moved to a different area of the DOM (as in with drag and drop like a kanban board)
+
 ## 3.0.5 - 2026-05-07
 - Latest pull requests merged
 
@@ -137,4 +144,3 @@
 
 ## Previous Versions
 - Built up to point of very basic z-swap functionality with debug and full docs for z-swap attribute.
-
