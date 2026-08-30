@@ -1,3 +1,6 @@
+## 3.1.2 - 2026-08-30
+- Running a semver because version numbers are out of sync on NPM readme
+
 ## 3.1.1 - 2026-08-25
 - Merge fix for z-action @action trigger
 
