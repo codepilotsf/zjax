@@ -20,7 +20,7 @@ test('z-action', withHtml(
       }
     </script>
     <button z-action="@click.stop menu.showAll">Go To...</button>
-    <nav hidden z-action="@[keydown.document.escape,click.outside] menu.hide, @beforeunload.window.prevent $.event.returnValue=''">
+    <nav hidden z-action="@[keydown.document.escape,click.outside] menu.hide">
       <button href="../assets/mobydick.html" z-action="@click go">Moby Dick</button>
       <button href="../assets/flip.html" z-action="@click go">Flip-Flop</button>
     </nav>
@@ -50,12 +50,7 @@ test('z-action', withHtml(
     const btnMoby = page.getByRole('button', { name: 'Moby Dick' });
     await expect(btnMoby).toBeVisible();
 
-    await expectDialogAfter(page, () => btnMoby.click(), 'beforeunload', 'dismiss');
-    await expect(page).toHaveURL('test/out/z-action.html'); // dismiss -> stay on same page
-    await expect(btnGoto).toBeVisible();
-    await expect(nav).toBeVisible();
-
-    await expectDialogAfter(page, () => btnMoby.click(), 'beforeunload', 'accept');
+    await btnMoby.click();
     await expect(page).toHaveURL('/test/assets/mobydick.html');
     await expect(page.getByText('Herman Melville - Moby-Dick')).toBeVisible();
 

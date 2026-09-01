@@ -41,5 +41,8 @@
     "branches": 100,
     "functions": 100,
     "lcovFile": "test/result/report/coverage/lcov.info"
+  },
+  "dependencies": {
+    "jsdom": "^29.1.1"
   }
 }
